@@ -1,4 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import personService from './services/persons';
+import Notification from './components/Notification';
+
+const styles = `
+  .notification {
+    color: green;
+    background: lightgrey;
+    font-size: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+`;
+const styleSheet = document.createElement('style');
+styleSheet.innerText = styles;
+document.head.appendChild(styleSheet);
 
 const Filter = ({ value, onChange }) => (
   <div>
@@ -26,7 +43,7 @@ const PersonForm = ({
   </form>
 );
 
-const Persons = ({ persons, filter }) => {
+const Persons = ({ persons, filter, handleDelete }) => {
   const filteredPersons = persons.filter((person) =>
     person.name.toLowerCase().includes(filter.toLowerCase())
   );
@@ -34,42 +51,104 @@ const Persons = ({ persons, filter }) => {
   return (
     <div>
       {filteredPersons.map((person) => (
-        <p key={person.name}>
+        <div key={person.id}>
           {person.name} {person.number}
-        </p>
+          <button onClick={() => handleDelete(person.id, person.name)}>
+            delete
+          </button>
+        </div>
       ))}
     </div>
   );
 };
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 },
-  ]);
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [filter, setFilter] = useState('');
+  const [notification, setNotification] = useState(null);
+
+  useEffect(() => {
+    personService.getAll().then((response) => {
+      setPersons(response.data);
+    });
+  }, []);
+
+  const showNotification = (message) => {
+    setNotification(message);
+    setTimeout(() => {
+      setNotification(null);
+    }, 5000);
+  };
 
   const addPerson = (event) => {
     event.preventDefault();
 
-    if (persons.some((person) => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`);
+    const existingPerson = persons.find((p) => p.name === newName);
+
+    if (existingPerson) {
+      if (
+        window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        const updatedPerson = { ...existingPerson, number: newNumber };
+        personService
+          .update(existingPerson.id, updatedPerson)
+          .then((response) => {
+            setPersons(
+              persons.map((p) =>
+                p.id !== existingPerson.id ? p : response.data
+              )
+            );
+            setNewName('');
+            setNewNumber('');
+            showNotification(`Updated ${newName}'s number`);
+          })
+          .catch((error) => {
+            showNotification(
+              `Information of ${newName} has already been removed from server`
+            );
+            setPersons(persons.filter((p) => p.id !== existingPerson.id));
+          });
+      }
       return;
     }
 
     const personObject = {
       name: newName,
       number: newNumber,
-      id: persons.length + 1,
     };
 
-    setPersons(persons.concat(personObject));
-    setNewName('');
-    setNewNumber('');
+    personService
+      .create(personObject)
+      .then((response) => {
+        setPersons(persons.concat(response.data));
+        setNewName('');
+        setNewNumber('');
+        showNotification(`Added ${newName}`);
+      })
+      .catch((error) => {
+        showNotification(`Failed to add ${newName}`);
+      });
+  };
+
+  const handleDelete = (id, name) => {
+    if (window.confirm(`Delete ${name}?`)) {
+      personService
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter((p) => p.id !== id));
+          showNotification(`Deleted ${name}`);
+        })
+        .catch((error) => {
+          showNotification(
+            `Information of ${name} has already been removed from server`
+          );
+          setPersons(persons.filter((p) => p.id !== id));
+        });
+    }
   };
 
   const handleNameChange = (event) => {
@@ -87,6 +166,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notification} />
       <Filter value={filter} onChange={handleFilterChange} />
 
       <h3>Add a new</h3>
@@ -99,7 +179,7 @@ const App = () => {
       />
 
       <h3>Numbers</h3>
-      <Persons persons={persons} filter={filter} />
+      <Persons persons={persons} filter={filter} handleDelete={handleDelete} />
     </div>
   );
 };
