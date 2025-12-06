@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 
 mongoose.set('strictQuery', false);
 
-const url = process.env.MONGODB_URI;
+const url =
+  process.env.MONGODB_URI ||
+  'mongodb+srv://fullstack:rikufull@fullstack.lwltzto.mongodb.net/phonebookApp?retryWrites=true&w=majority&appName=fullstack';
 
 console.log('connecting to', url);
 mongoose
