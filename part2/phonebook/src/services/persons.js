@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 const baseUrl = 'https://rikufullstack-phonebook.onrender.com/api/persons';
 
 const getAll = () => {
