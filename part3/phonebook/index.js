@@ -1,7 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
-const path = require('path');
 const app = express();
 
 app.use(cors());
@@ -95,10 +94,6 @@ app.post('/api/persons', (request, response) => {
 });
 
 app.use(express.static('dist'));
-
-app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
