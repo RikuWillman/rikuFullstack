@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 
 app.use(cors());
@@ -31,7 +32,7 @@ let persons = [
 ];
 
 app.get('/', (req, res) => {
-  res.send('<h1>Phonebook Backend</h1><p>API is running</p>');
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.get('/api/persons', (request, response) => {
