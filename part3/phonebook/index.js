@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+'use strict';
+
 require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
@@ -42,14 +45,14 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-    .then((result) => {
+    .then(() => {
       response.status(204).end();
     })
     .catch((error) => next(error));
 });
 
 app.post('/api/persons', (request, response, next) => {
-  const body = request.body;
+  const { body } = request;
 
   if (!body.name || !body.number) {
     return response.status(400).json({

@@ -1,3 +1,7 @@
+/* eslint-disable no-undef */
+'use strict';
+
+require('dotenv').config();
 const mongoose = require('mongoose');
 
 if (process.argv.length < 3) {
@@ -33,8 +37,8 @@ if (process.argv.length === 3) {
   const number = process.argv[4];
 
   const person = new Person({
-    name: name,
-    number: number,
+    name,
+    number,
   });
 
   person.save().then(() => {

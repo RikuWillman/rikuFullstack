@@ -1,15 +1,16 @@
+/* eslint-disable no-undef */
+'use strict';
+
 const mongoose = require('mongoose');
 
 mongoose.set('strictQuery', false);
 
-const url =
-  process.env.MONGODB_URI ||
-  'mongodb+srv://fullstack:rikufull@fullstack.lwltzto.mongodb.net/phonebookApp?retryWrites=true&w=majority&appName=fullstack';
+const url = process.env.MONGODB_URI;
 
 console.log('connecting to', url);
 mongoose
   .connect(url, { family: 4 })
-  .then((result) => {
+  .then(() => {
     console.log('connected to MongoDB');
   })
   .catch((error) => {
