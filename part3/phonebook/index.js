@@ -1,13 +1,11 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
-const path = require('path');
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(morgan('tiny'));
-app.use(express.static('dist'));
 
 let persons = [
   {
@@ -31,6 +29,10 @@ let persons = [
     number: '39-23-6423122',
   },
 ];
+
+app.get('/', (req, res) => {
+  res.send('<h1>Phonebook Backend</h1><p>API is running</p>');
+});
 
 app.get('/api/persons', (request, response) => {
   response.json(persons);
@@ -94,6 +96,8 @@ app.post('/api/persons', (request, response) => {
   persons = persons.concat(person);
   response.json(person);
 });
+
+app.use(express.static('dist'));
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
