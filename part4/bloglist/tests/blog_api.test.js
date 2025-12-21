@@ -154,7 +154,16 @@ test('blog without url returns 400', async () => {
     .send(newBlog)
     .expect(400);
 });
+test('blog creation fails without token', async () => {
+  const newBlog = {
+    title: 'Unauthorized Blog',
+    author: 'Test Author',
+    url: 'http://unauthorized.com',
+    likes: 5,
+  };
 
+  await api.post('/api/blogs').send(newBlog).expect(401);
+});
 after(async () => {
   await mongoose.connection.close();
 });
