@@ -48,12 +48,10 @@ describe('Blog app', () => {
       await page.locator('input[name="URL"]').fill('http://test.com');
       await page.getByRole('button', { name: 'create' }).click();
 
-      // Check notification appears
       await expect(
         page.getByText('A new blog "Test Blog" by Test Author added')
       ).toBeVisible();
 
-      // Check blog appears
       await expect(page.locator('.blog')).toHaveCount(1);
     });
 
@@ -65,7 +63,6 @@ describe('Blog app', () => {
         await page.locator('input[name="URL"]').fill('http://test.com');
         await page.getByRole('button', { name: 'create' }).click();
 
-        // Wait for blog to appear
         await expect(page.locator('.blog')).toHaveCount(1);
       });
 
@@ -109,23 +106,20 @@ describe('Blog app', () => {
       });
 
       test('blogs are ordered by likes', async ({ page }) => {
-        // Create first blog
         await page.getByRole('button', { name: 'create new blog' }).click();
         await page.locator('input[name="Title"]').fill('Blog Zero');
         await page.locator('input[name="Author"]').fill('Author Zero');
         await page.locator('input[name="URL"]').fill('http://zero.com');
         await page.getByRole('button', { name: 'create' }).click();
 
-        // Create second blog
         await page.getByRole('button', { name: 'create new blog' }).click();
         await page.locator('input[name="Title"]').fill('Blog Two');
         await page.locator('input[name="Author"]').fill('Author Two');
         await page.locator('input[name="URL"]').fill('http://two.com');
         await page.getByRole('button', { name: 'create' }).click();
 
-        // Like second blog twice
         const blogs = page.locator('.blog');
-        await expect(blogs).toHaveCount(3); // Original + 2 new blogs
+        await expect(blogs).toHaveCount(3);
 
         const blogTwo = blogs.filter({ hasText: 'Blog Two' }).first();
         await blogTwo.getByRole('button', { name: 'view' }).click();
@@ -133,7 +127,6 @@ describe('Blog app', () => {
         await blogTwo.getByRole('button', { name: 'like' }).click();
         await blogTwo.getByRole('button', { name: 'hide' }).click();
 
-        // Blog with 2 likes should be first
         const firstBlog = blogs.first();
         await expect(firstBlog).toContainText('Blog Two');
       });
